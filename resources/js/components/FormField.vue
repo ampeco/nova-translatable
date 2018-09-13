@@ -66,6 +66,7 @@
 import Trix from '../Trix'
 
 import { FormField, HandlesValidationErrors } from 'laravel-nova'
+import { EventBus } from '../event-bus';
 
 export default {
     mixins: [FormField, HandlesValidationErrors],
@@ -82,7 +83,13 @@ export default {
     },
 
     mounted() {
-        this.currentLocale = this.locales[0] || null
+        this.currentLocale = this.locales[0] || null;
+
+        EventBus.$on('localeChanged', locale => {
+            if(this.currentLocale !== locale) {
+                this.changeTab(locale, true);
+            }
+        });
     },
 
     methods: {
@@ -109,28 +116,35 @@ export default {
           this.value[this.currentLocale] = value
         },
 
-        changeTab(locale) {
-            this.currentLocale = locale
-            this.$nextTick(() => {
-                if (this.field.trix) {
-                    this.$refs.field.update()
-                } else {
-                    this.$refs.field.focus()
+        changeTab(locale, dontEmit) {
+            if(this.currentLocale !== locale){
+                if(!dontEmit){
+                    EventBus.$emit('localeChanged', locale);
                 }
-            })
+
+                this.currentLocale = locale;
+
+                this.$nextTick(() => {
+                    if (this.field.trix) {
+                        this.$refs.field.update()
+                    } else {
+                        this.$refs.field.focus()
+                    }
+                })
+            }
         },
 
         handleTab(e) {
             const currentIndex = this.locales.indexOf(this.currentLocale)
             if (!e.shiftKey) {
                 if (currentIndex < this.locales.length - 1) {
-                    e.preventDefault()
-                    this.changeTab(this.locales[currentIndex + 1])
+                    e.preventDefault();
+                    this.changeTab(this.locales[currentIndex + 1]);
                 }
             } else {
                 if (currentIndex > 0) {
-                    e.preventDefault()
-                    this.changeTab(this.locales[currentIndex - 1])
+                    e.preventDefault();
+                    this.changeTab(this.locales[currentIndex - 1]);
                 }
             }
         }
