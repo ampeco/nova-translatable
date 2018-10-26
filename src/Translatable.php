@@ -50,10 +50,10 @@ class Translatable extends Field
             $results = $resource->getTranslations($attribute);
         } elseif ( class_exists('\Dimsav\Translatable\TranslatableServiceProvider') ) {
             $translations = $resource->translations()
-                ->get(['locale', $attribute])
+                ->get([config('translatable.locale_key'), $attribute])
                 ->toArray();
             foreach ( $translations as $translation ) {
-                $results[$translation['locale']] = $translation[$attribute];
+                $results[$translation[config('translatable.locale_key')]] = $translation[$attribute];
             }
         }
         return $results;
