@@ -49,12 +49,7 @@ class Translatable extends Field
         if ( class_exists('\Spatie\Translatable\TranslatableServiceProvider') ) {
             $results = $resource->getTranslations($attribute);
         } elseif ( class_exists('\Dimsav\Translatable\TranslatableServiceProvider') ) {
-            $translations = $resource->translations()
-                ->get([config('translatable.locale_key'), $attribute])
-                ->toArray();
-            foreach ( $translations as $translation ) {
-                $results[$translation[config('translatable.locale_key')]] = $translation[$attribute];
-            }
+            $results =  $resource->translations->pluck($attribute, config('translatable.locale_key'));
         }
         return $results;
     }
