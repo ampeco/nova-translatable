@@ -9,7 +9,7 @@
     "license": "MIT",
     "require": {
         "php": ">=7.1.0",
-        "dimsav/laravel-translatable": "^9.0"
+        "astrotomic/laravel-translatable": "^11.1"
     },
     "autoload": {
         "psr-4": {

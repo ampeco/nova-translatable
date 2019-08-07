@@ -3,7 +3,7 @@
 
 This package is based on [mrmonat/nova-translatable](https://github.com/mrmonat/nova-translatable).
 
-Adds the ability to show and edit translated fields created with [dimsav/laravel-translatable](https://github.com/dimsav/laravel-translatable) package.
+Adds the ability to show and edit translated fields created with [astrotomic/laravel-translatable](https://github.com/Astrotomic/laravel-translatable) package.
 
 It will show up in the detail view like this:
 
@@ -30,7 +30,11 @@ Translatable::make('Description'),
 
 Make sure, that you have your Eloquent model setup correct:
 
+<<<<<<< HEAD
 - First, you need to add the `Dimsav\Translatable\Translatable`-trait.
+=======
+- First, you need to add the `Astrotomic\Translatable\Translatable`-trait.
+>>>>>>> 48aac4ec6b9526b3e04e2efc49f87ed9c8e2605a
 - Next, you should create a public property `$translatedAttributes` which holds an array with all the names of attributes you wish to make translatable.
 - Finally, you should make sure that all translatable attributes are set to the `text`-datatype in your database. If your database supports `json`-columns, use that.
 
@@ -38,7 +42,11 @@ Here's an example of a prepared model:
 
 ``` php
 use Illuminate\Database\Eloquent\Model;
+<<<<<<< HEAD
 use Dimsav\Translatable\Translatable;
+=======
+use Astrotomic\Translatable\Translatable;
+>>>>>>> 48aac4ec6b9526b3e04e2efc49f87ed9c8e2605a
 
 class NewsItem extends Model
 {
