@@ -1,64 +1,66 @@
 <template>
-    <field-wrapper>
-        <div class="w-1/5 px-8 py-6">
-            <slot>
-                <form-label :for="field.name">
-                    {{ field.name }}
-                </form-label>
-            </slot>
-        </div>
-        <div class="px-8 py-6" :class="computedWidth">
-            <a 
-                class="inline-block font-bold cursor-pointer mr-2 animate-text-color select-none border-primary" 
-                :class="{ 'text-60': localeKey !== currentLocale, 'text-primary border-b-2': localeKey === currentLocale }"
-                :key="`a-${localeKey}`" 
-                v-for="(locale, localeKey) in field.locales"
-                @click="changeTab(localeKey)"
-            >
-                {{ locale }}
-            </a>
-
-            <textarea
-                ref="field" 
-                :id="field.name"
-                class="mt-4 w-full form-control form-input form-input-bordered py-3 min-h-textarea"
-                :class="errorClasses"
-                :placeholder="field.name"
-                v-model="value[currentLocale]"
-                v-if="!field.singleLine && !field.trix"
-                @keydown.tab="handleTab"
-            ></textarea>
-
-            <div v-if="!field.singleField && field.trix" @keydown.stop class="mt-4">
-                <trix
-                    ref="field"
-                    name="trixman"
-                    :value="value[currentLocale]"
-                    placeholder=""
-                    @change="handleChange"
-                />
+    <default-field :errors="errors" :field="field">
+        <template slot="field">
+            <div>
+                <slot>
+                    <form-label
+                        :class="{ 'mb-2': showHelpText && field.helpText }"
+                        :label-for="field.attribute"
+                    >
+                        {{ fieldLabel }}
+                        <span v-if="field.required" class="text-danger text-sm">*</span>
+                    </form-label>
+                </slot>
             </div>
+            <div>
+                <a
+                    v-for="(locale, localeKey) in field.locales"
+                    :key="`a-${localeKey}`"
+                    :class="{ 'text-60': localeKey !== currentLocale, 'text-primary border-b-2': localeKey === currentLocale }"
+                    class="inline-block font-bold cursor-pointer mr-2 animate-text-color select-none border-primary"
+                    @click="changeTab(localeKey)"
+                >
+                    {{ locale }}
+                </a>
 
-            <input 
-                ref="field" 
-                type="text" 
-                :id="field.name"
-                class="mt-4 w-full form-control form-input form-input-bordered"
-                :class="errorClasses"
-                :placeholder="field.name"
-                v-model="value[currentLocale]"
-                v-if="field.singleLine"
-                @keydown.tab="handleTab"
-            />
+                <textarea
+                    v-if="!field.singleLine && !field.trix"
+                    :id="field.name"
+                    ref="field"
+                    v-model="value[currentLocale]"
+                    :class="errorClasses"
+                    :placeholder="field.name"
+                    class="mt-4 w-full form-control form-input form-input-bordered py-3 min-h-textarea"
+                    @keydown.tab="handleTab"
+                ></textarea>
 
-            <p v-if="hasError" class="my-2 text-danger">
-                {{ firstError }}
-            </p>
-            <help-text class="help-text mt-2" v-if="field.helpText">
-                {{ field.helpText }}
-            </help-text>
-        </div>
-    </field-wrapper>
+                <div v-if="!field.singleField && field.trix" class="mt-4" @keydown.stop>
+                    <trix
+                        ref="field"
+                        :value="value[currentLocale]"
+                        name="trixman"
+                        placeholder=""
+                        @change="handleChange"
+                    />
+                </div>
+
+                <input
+                    v-if="field.singleLine"
+                    :id="field.name"
+                    ref="field"
+                    v-model="value[currentLocale]"
+                    :class="errorClasses"
+                    :placeholder="field.name"
+                    class="mt-4 w-full form-control form-input form-input-bordered"
+                    type="text"
+                    @keydown.tab="handleTab"
+                />
+                <help-text v-if="field.helpText" class="help-text mt-2">
+                    {{ field.helpText }}
+                </help-text>
+            </div>
+        </template>
+    </default-field>
 </template>
 
 <script>
@@ -86,10 +88,16 @@ export default {
         this.currentLocale = this.locales[0] || null;
 
         EventBus.$on('localeChanged', locale => {
-            if(this.currentLocale !== locale) {
+            if(this.currentLocale !== locale){
                 this.changeTab(locale, true);
             }
         });
+
+        // Explicitly trigger change in order to get nova send the input in the POST request
+        // Fixes a case when you dynamically add an empty translatable input in update form
+        if (!this.value[this.currentLocale]) {
+            this.handleChange()
+        }
     },
 
     methods: {
@@ -151,12 +159,9 @@ export default {
     },
 
     computed: {
-        computedWidth() {
-            return {
-                'w-1/2': !this.field.trix,
-                'w-4/5': this.field.trix
-            }
-        }
+        fieldLabel() {
+            return this.field.singularLabel || this.field.name
+        },
     }
 }
 </script>

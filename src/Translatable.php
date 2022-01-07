@@ -131,4 +131,36 @@ class Translatable extends Field
     {
         return $this->withMeta(['truncate' => true]);
     }
+
+    /**
+     * Override the default isRequired behaviour to support custom required rule
+     *
+     * @param NovaRequest $request
+     * @return mixed
+     */
+    public function isRequired(NovaRequest $request)
+    {
+        $requiredRuleName = config('nova-translatable.required_rule_name', 'required');
+        return with($this->requiredCallback, function ($callback) use ($request, $requiredRuleName) {
+            if ($callback === true || (is_callable($callback) && call_user_func($callback, $request))) {
+                return true;
+            }
+
+            if (!empty($this->attribute) && is_null($callback)) {
+                if ($request->isResourceIndexRequest() || $request->isActionRequest()) {
+                    return in_array($requiredRuleName, $this->getCreationRules($request)[$this->attribute]);
+                }
+
+                if ($request->isCreateOrAttachRequest()) {
+                    return in_array($requiredRuleName, $this->getCreationRules($request)[$this->attribute]);
+                }
+
+                if ($request->isUpdateOrUpdateAttachedRequest()) {
+                    return in_array($requiredRuleName, $this->getUpdateRules($request)[$this->attribute]);
+                }
+            }
+
+            return false;
+        });
+    }
 }
