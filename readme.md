@@ -39,6 +39,7 @@ Here's an example of a prepared model:
 
 ``` php
 use Illuminate\Database\Eloquent\Model;
+
 use Astrotomic\Translatable\Translatable;
 
 class NewsItem extends Model
