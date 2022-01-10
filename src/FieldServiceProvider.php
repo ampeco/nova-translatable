@@ -15,6 +15,10 @@ class FieldServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->publishes([
+            dirname(__DIR__) . '/config/config.publish.php' => config_path('nova-translatable.php'),
+        ]);
+
         Nova::serving(function (ServingNova $event) {
             Nova::script('translatable', __DIR__ . '/../dist/js/field.js');
             Nova::style('translatable', __DIR__ . '/../dist/css/field.css');
@@ -28,6 +32,8 @@ class FieldServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->mergeConfigFrom(
+            dirname(__DIR__) . '/config/config.default.php', 'nova-translatable'
+        );
     }
 }
