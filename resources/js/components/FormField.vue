@@ -29,7 +29,9 @@
                     ref="field"
                     v-model="value[currentLocale]"
                     :class="errorClasses"
-                    :placeholder="field.name"
+                    :readonly="isAttributeReadOnly"
+                    :disabled="isAttributeDisabled"
+                    :placeholder="getPlaceholder"
                     class="mt-4 w-full form-control form-input form-input-bordered py-3 min-h-textarea"
                     @keydown.tab="handleTab"
                 ></textarea>
@@ -161,6 +163,25 @@ export default {
     computed: {
         fieldLabel() {
             return this.field.singularLabel || this.field.name
+        },
+
+        isAttributeReadOnly()
+        {
+            return this.field.extraAttributes?.readOnly
+                ?? this.field.extraAttributes?.readonly
+                ?? false
+        },
+
+        isAttributeDisabled()
+        {
+            return this.field.extraAttributes?.disabled
+                ?? false
+        },
+
+        getPlaceholder()
+        {
+            return this.field.extraAttributes?.placeholder
+                ?? this.field.name
         },
     }
 }
