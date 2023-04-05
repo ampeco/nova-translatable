@@ -165,21 +165,18 @@ export default {
             return this.field.singularLabel || this.field.name
         },
 
-        isAttributeReadOnly()
-        {
+        isAttributeReadOnly() {
             return this.field.extraAttributes?.readOnly
                 ?? this.field.extraAttributes?.readonly
                 ?? false
         },
 
-        isAttributeDisabled()
-        {
+        isAttributeDisabled() {
             return this.field.extraAttributes?.disabled
                 ?? false
         },
 
-        getPlaceholder()
-        {
+        getPlaceholder() {
             return this.field.extraAttributes?.placeholder
                 ?? this.field.name
         },
