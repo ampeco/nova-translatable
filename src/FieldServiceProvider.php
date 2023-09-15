@@ -20,7 +20,7 @@ class FieldServiceProvider extends ServiceProvider
         ]);
 
         Nova::serving(function (ServingNova $event) {
-            Nova::script('translatable', __DIR__ . '/../dist/js/field.js');
+            Nova::script('translatable-2023-09-15', __DIR__ . '/../dist/js/field.js');
             Nova::style('translatable', __DIR__ . '/../dist/css/field.css');
         });
     }

@@ -1,23 +1,12 @@
 <template>
-    <default-field :errors="errors" :field="field">
-        <template slot="field">
-            <div>
-                <slot>
-                    <form-label
-                        :class="{ 'mb-2': showHelpText && field.helpText }"
-                        :label-for="field.attribute"
-                    >
-                        {{ fieldLabel }}
-                        <span v-if="field.required" class="text-danger text-sm">*</span>
-                    </form-label>
-                </slot>
-            </div>
+    <DefaultField :errors="errors" :field="field">
+        <template #field>
             <div>
                 <a
                     v-for="(locale, localeKey) in field.locales"
                     :key="`a-${localeKey}`"
-                    :class="{ 'text-60': localeKey !== currentLocale, 'text-primary border-b-2': localeKey === currentLocale }"
-                    class="inline-block font-bold cursor-pointer mr-2 animate-text-color select-none border-primary"
+                    :class="{ 'text-gray-400': localeKey !== currentLocale, 'text-primary-500 border-b-2': localeKey === currentLocale }"
+                    class="inline-block font-bold cursor-pointer mr-2 transition delay-500 select-none border-primary-500"
                     @click="changeTab(localeKey)"
                 >
                     {{ locale }}
@@ -62,7 +51,7 @@
                 </help-text>
             </div>
         </template>
-    </default-field>
+    </DefaultField>
 </template>
 
 <script>
@@ -70,7 +59,6 @@
 import Trix from '../Trix'
 
 import { FormField, HandlesValidationErrors } from 'laravel-nova'
-import { EventBus } from '../event-bus';
 
 export default {
     mixins: [FormField, HandlesValidationErrors],
@@ -87,13 +75,14 @@ export default {
     },
 
     mounted() {
+      console.log('nova-translatable from /dev')
         this.currentLocale = this.locales[0] || null;
 
-        EventBus.$on('localeChanged', locale => {
-            if(this.currentLocale !== locale){
-                this.changeTab(locale, true);
-            }
-        });
+        // EventBus.$on('localeChanged', locale => {
+        //     if(this.currentLocale !== locale){
+        //         this.changeTab(locale, true);
+        //     }
+        // });
 
         // Explicitly trigger change in order to get nova send the input in the POST request
         // Fixes a case when you dynamically add an empty translatable input in update form
@@ -129,7 +118,8 @@ export default {
         changeTab(locale, dontEmit) {
             if(this.currentLocale !== locale){
                 if(!dontEmit){
-                    EventBus.$emit('localeChanged', locale);
+                    //EventBus.$emit('localeChanged', locale);
+                    this.changeTab(locale, true)
                 }
 
                 this.currentLocale = locale;

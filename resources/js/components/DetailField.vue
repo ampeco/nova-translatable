@@ -1,11 +1,11 @@
 <template>
-    <panel-item :field="field">
-        <template slot="value">
+    <PanelItem :field="field">
+        <template #value>
 
-            <a 
-                class="inline-block font-bold cursor-pointer mr-2 animate-text-color select-none border-primary" 
-                :class="{ 'text-60': localeKey !== currentLocale, 'text-primary border-b-2': localeKey === currentLocale }"
-                :key="`a-${localeKey}`" 
+            <a
+                class="inline-block font-bold cursor-pointer mr-2 transition delay-500 select-none border-primary-500"
+                :class="{ 'text-gray-400': localeKey !== currentLocale, 'text-primary-500 border-b-2': localeKey === currentLocale }"
+                :key="`a-${localeKey}`"
                 v-for="(locale, localeKey) in field.locales"
                 @click="changeTab(localeKey)"
             >
@@ -18,7 +18,7 @@
             </div>
 
         </template>
-    </panel-item>
+    </PanelItem>
 </template>
 
 <script>
