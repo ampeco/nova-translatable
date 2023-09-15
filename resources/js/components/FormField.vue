@@ -75,14 +75,7 @@ export default {
     },
 
     mounted() {
-      console.log('nova-translatable from /dev')
         this.currentLocale = this.locales[0] || null;
-
-        // EventBus.$on('localeChanged', locale => {
-        //     if(this.currentLocale !== locale){
-        //         this.changeTab(locale, true);
-        //     }
-        // });
 
         // Explicitly trigger change in order to get nova send the input in the POST request
         // Fixes a case when you dynamically add an empty translatable input in update form
