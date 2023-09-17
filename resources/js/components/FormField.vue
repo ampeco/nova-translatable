@@ -71,7 +71,6 @@ export default {
         return {
             locales: Object.keys(this.field.locales),
             currentLocale: null,
-            trixValue: 'myvalue',
         }
     },
 
