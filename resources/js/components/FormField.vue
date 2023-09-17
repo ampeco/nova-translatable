@@ -58,10 +58,10 @@
 
 import Trix from '../Trix'
 
-import { FormField, HandlesValidationErrors } from 'laravel-nova'
+import { DependentFormField, FormField, HandlesValidationErrors } from 'laravel-nova'
 
 export default {
-    mixins: [FormField, HandlesValidationErrors],
+    mixins: [DependentFormField, FormField, HandlesValidationErrors],
 
     props: ['resourceName', 'resourceId', 'field'],
 
@@ -71,6 +71,7 @@ export default {
         return {
             locales: Object.keys(this.field.locales),
             currentLocale: null,
+            trixValue: 'myvalue',
         }
     },
 

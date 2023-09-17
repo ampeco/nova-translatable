@@ -19,6 +19,7 @@
         "vue-loader": "^16.8.3"
     },
     "dependencies": {
-        "trix": "^0.12.0"
+        "trix": "^1.0.0",
+        "uid": "^2"
     }
 }
