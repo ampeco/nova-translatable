@@ -21,7 +21,7 @@
                     :readonly="isAttributeReadOnly"
                     :disabled="isAttributeDisabled"
                     :placeholder="getPlaceholder"
-                    class="mt-4 w-full form-control form-input form-input-bordered py-3 min-h-textarea"
+                    class="mt-4 w-full form-control form-input form-control-bordered py-3 min-h-textarea"
                     @keydown.tab="handleTab"
                 ></textarea>
 
@@ -42,7 +42,7 @@
                     v-model="value[currentLocale]"
                     :class="errorClasses"
                     :placeholder="field.name"
-                    class="mt-4 w-full form-control form-input form-input-bordered"
+                    class="mt-4 w-full form-control form-input form-control-bordered"
                     type="text"
                     @keydown.tab="handleTab"
                 />
