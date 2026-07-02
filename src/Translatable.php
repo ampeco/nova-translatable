@@ -43,7 +43,7 @@ class Translatable extends Field
      * @param  string  $attribute
      * @return mixed
      */
-    protected function resolveAttribute($resource, $attribute)
+    protected function resolveAttribute($resource, string $attribute): mixed
     {
         $results = [];
         if ( class_exists('\Spatie\Translatable\TranslatableServiceProvider') && method_exists($resource, 'getTranslations') ) {
@@ -65,7 +65,7 @@ class Translatable extends Field
      * @param  string  $attribute
      * @return void
      */
-    protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
+    protected function fillAttributeFromRequest(NovaRequest $request, string $requestAttribute, object $model, string $attribute)
     {
         if ( class_exists('\Astrotomic\Translatable\TranslatableServiceProvider') && method_exists($model, 'translateOrNew') ) {
             if ( is_array($request[$requestAttribute]) ) {
