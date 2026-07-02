@@ -138,7 +138,7 @@ class Translatable extends Field
      * @param NovaRequest $request
      * @return mixed
      */
-    public function isRequired(NovaRequest $request)
+    public function isRequired(NovaRequest $request): bool
     {
         $requiredRuleName = config('nova-translatable.required_rule_name', 'required');
         return with($this->requiredCallback, function ($callback) use ($request, $requiredRuleName) {
