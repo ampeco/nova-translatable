@@ -142,7 +142,7 @@ export default {
         visibleLocales() {
             const q = this.search.trim().toLowerCase()
             if (q) {
-                return this.orderedKeys.filter(k => this.matchesQuery(k, q))
+                return this.orderedKeys.filter(k => k === this.primaryLocale || this.matchesQuery(k, q))
             }
             return this.orderedKeys.filter(k => {
                 if (this.hasValue(k) || k === this.primaryLocale) return true
