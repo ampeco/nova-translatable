@@ -41,6 +41,15 @@
                     </div>
                 </div>
 
+                <div class="px-6 pt-4">
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Filter languages…"
+                        class="form-control form-input form-input-bordered w-full"
+                    />
+                </div>
+
                 <div class="max-h-[60vh] overflow-y-auto px-6 py-4">
                   <div ref="list" class="space-y-4">
                     <div v-for="localeKey in visibleLocales" :key="localeKey">
@@ -80,16 +89,7 @@
                         ></textarea>
                     </div>
                   </div>
-
-                    <div class="mt-5 border-t border-gray-100 pt-4 dark:border-gray-700">
-                        <input
-                            v-model="search"
-                            type="text"
-                            placeholder="Find or add a language…"
-                            class="form-control form-input form-input-bordered w-full"
-                        />
-                        <p v-if="noSearchMatch" class="mt-2 text-sm text-gray-400">No languages match “{{ search }}”.</p>
-                    </div>
+                  <p v-if="noSearchMatch" class="mt-4 text-sm text-gray-400">No languages match “{{ search }}”.</p>
                 </div>
 
                 <div class="flex items-center justify-end gap-4 border-t border-gray-100 px-6 py-4 dark:border-gray-700">
