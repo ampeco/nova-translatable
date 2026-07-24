@@ -54,16 +54,13 @@
                 <div class="max-h-[60vh] overflow-y-auto px-6 py-4">
                   <div ref="list" class="space-y-4">
                     <div v-for="localeKey in visibleLocales" :key="localeKey">
-                        <div class="mb-1 flex items-center justify-between">
-                            <span class="flex items-center gap-2 text-sm font-semibold">
-                                <span :class="hasValue(localeKey) ? 'text-green-600' : 'text-gray-400'">&#9679;</span>
-                                {{ localeLabel(localeKey) }}
-                                <span class="font-normal text-gray-400">· {{ localeKey }}</span>
-                                <span
-                                    v-if="localeKey === primaryLocale"
-                                    class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-500 dark:bg-gray-700"
-                                >default</span>
-                            </span>
+                        <div class="mb-1 flex items-center gap-2 text-sm font-semibold">
+                            <span :class="hasValue(localeKey) ? 'text-green-600' : 'text-gray-400'">{{ localeLabel(localeKey) }}</span>
+                            <span class="font-normal text-gray-400">· {{ localeKey }}</span>
+                            <span
+                                v-if="localeKey === primaryLocale"
+                                class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-500 dark:bg-gray-700"
+                            >default</span>
                         </div>
 
                         <trix
