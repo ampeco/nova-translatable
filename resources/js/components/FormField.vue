@@ -27,7 +27,7 @@
                     v-if="showTranslationsModal"
                     :field="field"
                     :locales="field.locales"
-                    :primary-locale="locales[0]"
+                    :primary-locale="primaryLocale"
                     :value="value"
                     @save="onTranslationsSave"
                     @close="showTranslationsModal = false"
@@ -184,6 +184,13 @@ export default {
     computed: {
         fieldLabel() {
             return this.field.singularLabel || this.field.name
+        },
+
+        primaryLocale() {
+            const defaultLocale = this.field.defaultLocale
+            return defaultLocale && this.field.locales[defaultLocale]
+                ? defaultLocale
+                : (this.locales[0] || null)
         },
 
         isAttributeReadOnly() {

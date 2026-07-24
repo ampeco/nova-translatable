@@ -113,6 +113,7 @@ export default {
     data() {
         return {
             draft: { ...(this.value || {}) },
+            pristine: { ...(this.value || {}) },
             search: '',
             hideEmpty: false,
         }
@@ -138,8 +139,7 @@ export default {
             return this.localeKeys.filter(k => this.hasValue(k)).length
         },
         dirty() {
-            const base = this.value || {}
-            return this.localeKeys.some(k => (this.draft[k] || '') !== (base[k] || ''))
+            return this.localeKeys.some(k => (this.draft[k] || '') !== (this.pristine[k] || ''))
         },
         visibleLocales() {
             const q = this.search.trim().toLowerCase()
@@ -164,10 +164,17 @@ export default {
             const firstField = this.$refs.list?.querySelector('input, textarea, trix-editor')
             const focusable = firstField || this.$refs.dialog.querySelector('input, textarea')
             if (focusable) focusable.focus()
+            // Trix emits a normalizing `change` on init, which would otherwise mark
+            // the dialog dirty before the user edits anything. Re-baseline once those
+            // init changes have settled so dirty-tracking reflects real edits only.
+            this._settleTimer = setTimeout(() => {
+                this.pristine = { ...this.draft }
+            }, 50)
         })
     },
 
     beforeUnmount() {
+        if (this._settleTimer) clearTimeout(this._settleTimer)
         if (this._returnFocusTo && this._returnFocusTo.focus) this._returnFocusTo.focus()
     },
 
@@ -186,7 +193,13 @@ export default {
             this.draft[localeKey] = v
         },
         save() {
-            this.$emit('save', { ...this.draft })
+            const changed = {}
+            this.localeKeys.forEach(k => {
+                if ((this.draft[k] || '') !== (this.pristine[k] || '')) {
+                    changed[k] = this.draft[k]
+                }
+            })
+            this.$emit('save', changed)
         },
         attemptClose() {
             if (this.dirty && !window.confirm('Discard unsaved translation changes?')) return
