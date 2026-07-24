@@ -18,22 +18,31 @@
                         <h2 class="text-lg font-bold">Translations · {{ fieldName }}</h2>
                         <p class="mt-1 text-sm text-gray-500">{{ translatedCount }} / {{ totalCount }} translated</p>
                     </div>
-                    <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" aria-label="Close" @click="attemptClose">&times;</button>
+                    <div class="flex items-center gap-5">
+                        <button
+                            type="button"
+                            role="switch"
+                            :aria-checked="showAll ? 'true' : 'false'"
+                            class="flex cursor-pointer select-none items-center gap-2 text-sm text-gray-500"
+                            @click="showAll = !showAll"
+                        >
+                            <span>Show empty</span>
+                            <span
+                                class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
+                                :class="showAll ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'"
+                            >
+                                <span
+                                    class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                                    :class="showAll ? 'translate-x-4' : 'translate-x-0.5'"
+                                ></span>
+                            </span>
+                        </button>
+                        <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" aria-label="Close" @click="attemptClose">&times;</button>
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-3 px-6 pt-4">
-                    <input
-                        v-model="search"
-                        type="text"
-                        placeholder="Find or add a language…"
-                        class="form-control form-input form-input-bordered w-full"
-                    />
-                    <label class="flex shrink-0 items-center gap-2 text-sm text-gray-500">
-                        <input v-model="showAll" type="checkbox" /> Show empty
-                    </label>
-                </div>
-
-                <div class="max-h-[60vh] space-y-4 overflow-y-auto px-6 py-4">
+                <div class="max-h-[60vh] overflow-y-auto px-6 py-4">
+                  <div ref="list" class="space-y-4">
                     <div v-for="localeKey in visibleLocales" :key="localeKey">
                         <div class="mb-1 flex items-center justify-between">
                             <span class="flex items-center gap-2 text-sm font-semibold">
@@ -78,8 +87,17 @@
                             @input="setValue(localeKey, $event.target.value)"
                         ></textarea>
                     </div>
+                  </div>
 
-                    <p v-if="!visibleLocales.length" class="text-sm text-gray-400">No languages match “{{ search }}”.</p>
+                    <div class="mt-5 border-t border-gray-100 pt-4 dark:border-gray-700">
+                        <input
+                            v-model="search"
+                            type="text"
+                            placeholder="Find or add a language…"
+                            class="form-control form-input form-input-bordered w-full"
+                        />
+                        <p v-if="noSearchMatch" class="mt-2 text-sm text-gray-400">No languages match “{{ search }}”.</p>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-4 border-t border-gray-100 px-6 py-4 dark:border-gray-700">
@@ -132,17 +150,24 @@ export default {
         visibleLocales() {
             const q = this.search.trim().toLowerCase()
             return this.orderedKeys.filter(k => {
-                const matchesSearch = !q || this.localeLabel(k).toLowerCase().includes(q) || k.toLowerCase().includes(q)
-                if (!matchesSearch) return false
-                return this.hasValue(k) || this.showAll || !!q || k === this.primaryLocale
+                if (this.hasValue(k) || k === this.primaryLocale) return true
+                if (this.showAll) return true
+                if (q) return this.matchesQuery(k, q)
+                return false
             })
+        },
+        noSearchMatch() {
+            const q = this.search.trim().toLowerCase()
+            if (!q) return false
+            return !this.localeKeys.some(k => this.matchesQuery(k, q))
         },
     },
 
     mounted() {
         this._returnFocusTo = document.activeElement
         this.$nextTick(() => {
-            const focusable = this.$refs.dialog.querySelector('input, textarea, button')
+            const firstField = this.$refs.list?.querySelector('input, textarea, trix-editor')
+            const focusable = firstField || this.$refs.dialog.querySelector('input, textarea')
             if (focusable) focusable.focus()
         })
     },
@@ -158,6 +183,9 @@ export default {
         },
         localeLabel(localeKey) {
             return this.locales[localeKey] || localeKey
+        },
+        matchesQuery(localeKey, q) {
+            return this.localeLabel(localeKey).toLowerCase().includes(q) || localeKey.toLowerCase().includes(q)
         },
         setValue(localeKey, v) {
             this.draft[localeKey] = v
