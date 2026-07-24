@@ -1,21 +1,22 @@
 <template>
     <teleport to="body">
         <div
-            class="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-gray-500/75 p-6"
+            class="fixed inset-0 flex items-start justify-center overflow-y-auto p-6"
+            style="z-index: 60; background-color: rgba(107, 114, 128, 0.75)"
             @mousedown.self="attemptClose"
         >
             <div
                 ref="dialog"
                 role="dialog"
                 aria-modal="true"
-                :aria-label="`Translations for ${fieldName}`"
+                :aria-labelledby="titleId"
                 class="relative mt-12 w-full max-w-2xl rounded-lg bg-white shadow-xl dark:bg-gray-800"
                 @keydown.esc.prevent="attemptClose"
                 @keydown.tab="trapFocus"
             >
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                     <div class="flex items-start justify-between">
-                        <h2 class="text-lg font-bold">Translations · {{ fieldName }}</h2>
+                        <h2 :id="titleId" class="text-lg font-bold">{{ fieldName }}</h2>
                         <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" aria-label="Close" @click="attemptClose">&times;</button>
                     </div>
                     <div class="mt-1 flex items-center justify-between">
@@ -51,7 +52,7 @@
                     />
                 </div>
 
-                <div class="max-h-[60vh] overflow-y-auto px-6 py-4">
+                <div class="overflow-y-auto px-6 py-4" style="max-height: 60vh">
                   <div ref="list" class="space-y-4">
                     <div v-for="localeKey in visibleLocales" :key="localeKey">
                         <div class="mb-1 flex items-center gap-2 text-sm font-semibold">
@@ -87,7 +88,7 @@
                         ></textarea>
                     </div>
                   </div>
-                  <p v-if="noSearchMatch" class="mt-4 text-sm text-gray-400">No languages match “{{ search }}”.</p>
+                  <p v-if="noSearchMatch" class="mt-4 text-sm text-gray-400">No other languages match “{{ search }}”.</p>
                 </div>
 
                 <div class="flex items-center justify-end gap-4 border-t border-gray-100 px-6 py-4 dark:border-gray-700">
@@ -121,6 +122,9 @@ export default {
         fieldName() {
             return this.field.singularLabel || this.field.name
         },
+        titleId() {
+            return `translations-modal-title-${this.field.attribute}`
+        },
         localeKeys() {
             return Object.keys(this.locales)
         },
@@ -150,7 +154,7 @@ export default {
         noSearchMatch() {
             const q = this.search.trim().toLowerCase()
             if (!q) return false
-            return !this.localeKeys.some(k => this.matchesQuery(k, q))
+            return !this.localeKeys.some(k => k !== this.primaryLocale && this.matchesQuery(k, q))
         },
     },
 
@@ -189,7 +193,7 @@ export default {
             this.$emit('close')
         },
         trapFocus(e) {
-            const nodes = this.$refs.dialog.querySelectorAll('a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])')
+            const nodes = this.$refs.dialog.querySelectorAll('a[href], button, input, textarea, select, trix-editor, [contenteditable="true"], [tabindex]:not([tabindex="-1"])')
             const list = Array.from(nodes).filter(n => !n.disabled && n.offsetParent !== null)
             if (!list.length) return
             const first = list[0]
