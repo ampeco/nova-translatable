@@ -5,8 +5,11 @@
                 <a
                     v-for="(locale, localeKey) in field.locales"
                     :key="`a-${localeKey}`"
-                    :class="{ 'text-gray-400': localeKey !== currentLocale, 'text-primary-500 border-b-2': localeKey === currentLocale }"
-                    class="inline-block font-bold cursor-pointer mr-2 transition delay-500 select-none border-primary-500"
+                    :class="[
+                        hasTranslation(localeKey) ? 'text-green-600' : 'text-gray-400',
+                        localeKey === currentLocale ? 'font-bold border-b-2' : 'font-normal',
+                    ]"
+                    class="inline-block cursor-pointer mr-2 transition delay-500 select-none border-primary-500"
                     @click="changeTab(localeKey)"
                 >
                     {{ locale }}
@@ -106,6 +109,11 @@ export default {
          */
         handleChange(value) {
           this.value[this.currentLocale] = value
+        },
+
+        hasTranslation(locale) {
+            const val = this.value[locale]
+            return typeof val === 'string' ? val.trim().length > 0 : !!val
         },
 
         changeTab(locale, dontEmit) {
