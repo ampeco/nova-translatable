@@ -32,7 +32,10 @@ class Translatable extends Field
 
         $this->withMeta([
             'locales' => $locales,
-            'indexLocale' => app()->getLocale()
+            'indexLocale' => app()->getLocale(),
+            'defaultLocale' => array_key_exists(app()->getLocale(), $locales)
+                ? app()->getLocale()
+                : array_key_first($locales),
         ]);
     }
 

@@ -15,6 +15,24 @@
                     {{ locale }}
                 </a>
 
+                <button
+                    type="button"
+                    class="inline-block ml-1 text-sm font-bold cursor-pointer select-none text-primary-500 hover:text-primary-400"
+                    @click="showTranslationsModal = true"
+                >
+                    View all
+                </button>
+
+                <translations-modal
+                    v-if="showTranslationsModal"
+                    :field="field"
+                    :locales="field.locales"
+                    :primary-locale="primaryLocale"
+                    :value="value"
+                    @save="onTranslationsSave"
+                    @close="showTranslationsModal = false"
+                />
+
                 <textarea
                     v-if="!field.singleLine && !field.trix"
                     :id="field.name"
@@ -60,6 +78,7 @@
 <script>
 
 import Trix from '../Trix'
+import TranslationsModal from './TranslationsModal'
 
 import { DependentFormField, FormField, HandlesValidationErrors } from 'laravel-nova'
 
@@ -68,12 +87,13 @@ export default {
 
     props: ['resourceName', 'resourceId', 'field'],
 
-    components: { Trix },
+    components: { Trix, TranslationsModal },
 
     data() {
         return {
             locales: Object.keys(this.field.locales),
             currentLocale: null,
+            showTranslationsModal: false,
         }
     },
 
@@ -116,6 +136,16 @@ export default {
             return typeof val === 'string' ? val.trim().length > 0 : !!val
         },
 
+        onTranslationsSave(translations) {
+            this.value = { ...this.value, ...translations }
+            this.showTranslationsModal = false
+            this.$nextTick(() => {
+                if (this.field.trix && this.$refs.field) {
+                    this.$refs.field.update()
+                }
+            })
+        },
+
         changeTab(locale, dontEmit) {
             if(this.currentLocale !== locale){
                 if(!dontEmit){
@@ -154,6 +184,13 @@ export default {
     computed: {
         fieldLabel() {
             return this.field.singularLabel || this.field.name
+        },
+
+        primaryLocale() {
+            const defaultLocale = this.field.defaultLocale
+            return defaultLocale && this.field.locales[defaultLocale]
+                ? defaultLocale
+                : (this.locales[0] || null)
         },
 
         isAttributeReadOnly() {
