@@ -13,31 +13,31 @@
                 @keydown.esc.prevent="attemptClose"
                 @keydown.tab="trapFocus"
             >
-                <div class="flex items-start justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <div>
+                <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+                    <div class="flex items-start justify-between">
                         <h2 class="text-lg font-bold">Translations · {{ fieldName }}</h2>
-                        <p class="mt-1 text-sm text-gray-500">{{ translatedCount }} / {{ totalCount }} translated</p>
+                        <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" aria-label="Close" @click="attemptClose">&times;</button>
                     </div>
-                    <div class="flex items-center gap-5">
+                    <div class="mt-1 flex items-center justify-between">
+                        <p class="text-sm text-gray-500">{{ translatedCount }} / {{ totalCount }} translated</p>
                         <button
                             type="button"
                             role="switch"
-                            :aria-checked="showAll ? 'true' : 'false'"
+                            :aria-checked="hideEmpty ? 'true' : 'false'"
                             class="flex cursor-pointer select-none items-center gap-2 text-sm text-gray-500"
-                            @click="showAll = !showAll"
+                            @click="hideEmpty = !hideEmpty"
                         >
-                            <span>Show empty</span>
+                            <span>Hide empty</span>
                             <span
                                 class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
-                                :class="showAll ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'"
+                                :class="hideEmpty ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'"
                             >
                                 <span
                                     class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
-                                    :class="showAll ? 'translate-x-4' : 'translate-x-0.5'"
+                                    :class="hideEmpty ? 'translate-x-4' : 'translate-x-0.5'"
                                 ></span>
                             </span>
                         </button>
-                        <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" aria-label="Close" @click="attemptClose">&times;</button>
                     </div>
                 </div>
 
@@ -54,14 +54,6 @@
                                     class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-500 dark:bg-gray-700"
                                 >default</span>
                             </span>
-                            <button
-                                v-if="localeKey !== primaryLocale && hasValue(primaryLocale)"
-                                type="button"
-                                class="text-xs font-bold text-primary-500 hover:text-primary-400"
-                                @click="copyFromPrimary(localeKey)"
-                            >
-                                Copy from {{ localeLabel(primaryLocale) }}
-                            </button>
                         </div>
 
                         <trix
@@ -123,7 +115,7 @@ export default {
         return {
             draft: { ...(this.value || {}) },
             search: '',
-            showAll: false,
+            hideEmpty: false,
         }
     },
 
@@ -149,11 +141,12 @@ export default {
         },
         visibleLocales() {
             const q = this.search.trim().toLowerCase()
+            if (q) {
+                return this.orderedKeys.filter(k => this.matchesQuery(k, q))
+            }
             return this.orderedKeys.filter(k => {
                 if (this.hasValue(k) || k === this.primaryLocale) return true
-                if (this.showAll) return true
-                if (q) return this.matchesQuery(k, q)
-                return false
+                return !this.hideEmpty
             })
         },
         noSearchMatch() {
@@ -189,9 +182,6 @@ export default {
         },
         setValue(localeKey, v) {
             this.draft[localeKey] = v
-        },
-        copyFromPrimary(localeKey) {
-            this.draft[localeKey] = this.draft[this.primaryLocale] || ''
         },
         save() {
             this.$emit('save', { ...this.draft })
