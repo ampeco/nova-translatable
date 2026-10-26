@@ -43,6 +43,7 @@
                     :disabled="isAttributeDisabled"
                     :placeholder="getPlaceholder"
                     class="mt-4 w-full form-control form-input form-control-bordered py-3 min-h-textarea"
+                    @input="emitValueChange"
                     @keydown.tab="handleTab"
                 ></textarea>
 
@@ -52,7 +53,7 @@
                         :value="value[currentLocale]"
                         name="trixman"
                         placeholder=""
-                        @change="handleChange"
+                        @change="handleTrixChange"
                     />
                 </div>
 
@@ -65,6 +66,7 @@
                     :placeholder="field.name"
                     class="mt-4 w-full form-control form-input form-control-bordered"
                     type="text"
+                    @input="emitValueChange"
                     @keydown.tab="handleTab"
                 />
                 <help-text v-if="field.helpText" class="help-text mt-2">
@@ -131,6 +133,28 @@ export default {
           this.value[this.currentLocale] = value
         },
 
+        handleTrixChange(value) {
+            if ((value || '') === (this.value[this.currentLocale] || '')) {
+                return
+            }
+
+            this.handleChange(value)
+            this.emitValueChange()
+        },
+
+        emitValueChange() {
+            this.emitFieldValueChange(this.fieldAttribute, { ...this.value })
+        },
+
+        emitLocaleChange() {
+            Nova.$emit(
+                this.hasFormUniqueId === true
+                    ? `${this.formUniqueId}-${this.fieldAttribute}-locale-change`
+                    : `${this.fieldAttribute}-locale-change`,
+                this.currentLocale
+            )
+        },
+
         hasTranslation(locale) {
             const val = this.value[locale]
             return typeof val === 'string' ? val.trim().length > 0 : !!val
@@ -139,6 +163,7 @@ export default {
         onTranslationsSave(translations) {
             this.value = { ...this.value, ...translations }
             this.showTranslationsModal = false
+            this.emitValueChange()
             this.$nextTick(() => {
                 if (this.field.trix && this.$refs.field) {
                     this.$refs.field.update()
@@ -146,14 +171,10 @@ export default {
             })
         },
 
-        changeTab(locale, dontEmit) {
+        changeTab(locale) {
             if(this.currentLocale !== locale){
-                if(!dontEmit){
-                    //EventBus.$emit('localeChanged', locale);
-                    this.changeTab(locale, true)
-                }
-
                 this.currentLocale = locale;
+                this.emitLocaleChange()
 
                 this.$nextTick(() => {
                     if (this.field.trix) {
